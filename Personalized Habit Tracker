@@ -1,0 +1,32 @@
+import sqlite3
+import matplotlib.pyplot as plt
+
+# Initialize database
+conn = sqlite3.connect('habits.db')
+c = conn.cursor()
+c.execute('''CREATE TABLE IF NOT EXISTS habits
+            (id INTEGER PRIMARY KEY, habit TEXT, date TEXT, status TEXT)''')
+conn.commit()
+
+# Track a habit
+habit = "Drink Water"
+date = "2023-10-15"
+status = "Done"
+c.execute("INSERT INTO habits (habit, date, status) VALUES (?, ?, ?)",
+          (habit, date, status))
+conn.commit()
+
+# Analyze habits
+c.execute("SELECT habit, COUNT(*) FROM habits WHERE status='Done' GROUP BY habit")
+data = c.fetchall()
+habits = [row[0] for row in data]
+counts = [row[1] for row in data]
+
+# Plot habits
+plt.bar(habits, counts)
+plt.title('Habit Completion')
+plt.xlabel('Habit')
+plt.ylabel('Count')
+plt.show()
+
+conn.close()
